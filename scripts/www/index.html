@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>配件库存 - 离线兼容版｜保留所有功能</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.2s, color 0.2s;
+            overflow: hidden;
+        }
+        /* 主题颜色 */
+        body.theme-dawn {
+            --bg-body: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --border-light: #e2e8f0;
+            --accent: #5b8cbc;
+            --accent-light: #eef2ff;
+            --warning-bg: #fef2f2;
+            --warning-border: #f87171;
+            --btn-secondary-bg: #f1f5f9;
+            --btn-secondary-active: #e2e8f0;
+        }
+        body.theme-mist {
+            --bg-body: #eef2f8;
+            --card-bg: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #5d6e85;
+            --border-light: #dce5ef;
+            --accent: #7f9eb5;
+            --accent-light: #eef2f8;
+            --warning-bg: #fff5f0;
+            --warning-border: #f4a261;
+            --btn-secondary-bg: #e2e8f0;
+            --btn-secondary-active: #cbd5e1;
+        }
+        body.theme-macha {
+            --bg-body: #edf5ec;
+            --card-bg: #ffffff;
+            --text-primary: #2d4a2e;
+            --text-secondary: #5a7a5b;
+            --border-light: #d4e2d3;
+            --accent: #89b68b;
+            --accent-light: #eaf5ea;
+            --warning-bg: #fef7e0;
+            --warning-border: #e6b86e;
+            --btn-secondary-bg: #e2f0e1;
+            --btn-secondary-active: #cde2cc;
+        }
+        body.theme-pink {
+            --bg-body: #fdf5f7;
+            --card-bg: #ffffff;
+            --text-primary: #5d3a4b;
+            --text-secondary: #8a6e7a;
+            --border-light: #f0e2e6;
+            --accent: #c9a9b4;
+            --accent-light: #fdf0f3;
+            --warning-bg: #fef4e8;
+            --warning-border: #e6b86e;
+            --btn-secondary-bg: #f1e4e8;
+            --btn-secondary-active: #e6d5da;
+        }
+        body.theme-lavender {
+            --bg-body: #f4f2f9;
+            --card-bg: #ffffff;
+            --text-primary: #3c3a5c;
+            --text-secondary: #6b6888;
+            --border-light: #e2def0;
+            --accent: #9f9ac6;
+            --accent-light: #f0eef9;
+            --warning-bg: #fef5e8;
+            --warning-border: #e6b86e;
+            --btn-secondary-bg: #e9e6f2;
+            --btn-secondary-active: #dbd7ea;
+        }
+        /* UI风格 */
+        body.style-bubble {
+            --radius-card: 36px;
+            --radius-part: 28px;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.05);
+            --shadow-lg: 0 16px 32px rgba(0,0,0,0.08);
+            --card-padding: 20px;
+            --gap-large: 16px;
+            --btn-radius: 40px;
+        }
+        body.style-minimal {
+            --radius-card: 16px;
+            --radius-part: 12px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.02);
+            --shadow-md: 0 2px 6px rgba(0,0,0,0.03);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.04);
+            --card-padding: 14px;
+            --gap-large: 10px;
+            --btn-radius: 32px;
+        }
+        body.style-glass {
+            --radius-card: 24px;
+            --radius-part: 18px;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.02);
+            --shadow-md: 0 8px 20px rgba(0,0,0,0.03);
+            --shadow-lg: 0 12px 28px rgba(0,0,0,0.05);
+            --card-padding: 16px;
+            --gap-large: 12px;
+            --btn-radius: 40px;
+        }
+        body.style-compact {
+            --radius-card: 12px;
+            --radius-part: 8px;
+            --shadow-sm: 0 1px 1px rgba(0,0,0,0.02);
+            --shadow-md: 0 2px 3px rgba(0,0,0,0.03);
+            --shadow-lg: 0 3px 6px rgba(0,0,0,0.04);
+            --card-padding: 10px;
+            --gap-large: 8px;
+            --btn-radius: 24px;
+        }
+        body.style-retro {
+            --radius-card: 4px;
+            --radius-part: 2px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 2px 4px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 8px rgba(0,0,0,0.1);
+            --card-padding: 16px;
+            --gap-large: 12px;
+            --btn-radius: 20px;
+        }
+
+        .app-container {
+            max-width: 560px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px 0px;
+            overflow: hidden;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: var(--card-padding);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            margin-bottom: var(--gap-large);
+            flex-shrink: 0;
+        }
+        .header-stats { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; }
+        h1 { font-size: 1.6rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), #8b9bb5); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .badge { background: var(--accent-light); padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 500; color: var(--accent); }
+        .stats-row { display: flex; justify-content: space-between; font-size: 0.75rem; background: var(--card-bg); padding: 8px 12px; border-radius: 24px; border: 1px solid var(--border-light); margin-top: 8px; }
+
+        .search-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: var(--gap-large);
+            align-items: stretch;
+            flex-shrink: 0;
+        }
+        .search-box {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: var(--btn-radius);
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            border: 1px solid var(--border-light);
+            height: 66px;
+        }
+        .search-box input { flex: 1; border: none; outline: none; font-size: 0.9rem; background: transparent; color: var(--text-primary); }
+        .search-box span { color: var(--text-secondary); margin-right: 8px; font-size: 1rem; }
+        
+        .vertical-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            justify-content: center;
+        }
+        .btn-primary, .menu-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0 16px;
+            border-radius: var(--btn-radius);
+            font-size: 0.75rem;
+            cursor: pointer;
+            height: 30px;
+            white-space: nowrap;
+            line-height: 30px;
+            min-width: 76px;
+            text-align: center;
+        }
+        .menu-container { position: relative; }
+        .menu-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            overflow-y: auto;
+            max-height: 60vh;
+            z-index: 100;
+            display: none;
+            min-width: 150px;
+            border: 1px solid var(--border-light);
+        }
+        .menu-dropdown.show { display: block; }
+        .menu-dropdown button {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            background: var(--card-bg);
+            text-align: left;
+            font-size: 0.7rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+        .menu-dropdown button:last-child { border-bottom: none; }
+        .menu-dropdown button:active { background: var(--btn-secondary-bg); }
+
+        .inventory-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-large);
+            padding-bottom: 80px;
+        }
+        .model-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+        .model-header {
+            background: var(--accent);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .model-header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .model-stats { background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 30px; font-size: 0.7rem; }
+        .model-total {
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 10px;
+            border-radius: 30px;
+            white-space: nowrap;
+            display: none;
+        }
+        .model-total.show { display: inline-block; }
+        .parts-container { padding: var(--card-padding); display: none; flex-direction: column; gap: 10px; }
+        .model-card.expanded .parts-container { display: flex; }
+
+        .part-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-part);
+            padding: 10px 12px;
+            position: relative;
+            cursor: grab;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1), background 0.05s linear;
+            will-change: transform;
+            touch-action: pan-y pinch-zoom;
+        }
+        .part-card.swiping { transition: none; }
+        .part-card.swiping * { color: inherit !important; }
+        .part-card.warning { border-left: 4px solid var(--warning-border); background: var(--warning-bg); }
+        .part-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+        .part-name { font-weight: 700; background: var(--accent-light); padding: 2px 10px; border-radius: 30px; font-size: 0.75rem; }
+        .part-color { font-size: 0.7rem; background: var(--btn-secondary-bg); padding: 2px 8px; border-radius: 20px; }
+        .part-qty-price { display: flex; gap: 12px; font-size: 0.8rem; font-weight: 600; }
+        .part-qty { color: #1e40af; }
+        .part-price { color: #b45309; }
+        .part-location { font-size: 0.7rem; background: #fefce8; padding: 4px 10px; border-radius: 16px; margin: 8px 0; display: inline-block; }
+        .part-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .part-actions button { flex: 1; background: var(--btn-secondary-bg); border: none; padding: 6px 0; border-radius: 40px; font-size: 0.7rem; cursor: pointer; }
+        .btn-in { background: #e0f2fe !important; color: #0369a1 !important; }
+        .btn-out { background: #ffe4e2 !important; color: #b91c1c !important; }
+        .btn-edit { background: #e6f0ff !important; color: #2563eb !important; }
+        .btn-del { background: #fff0f0 !important; color: #e11d48 !important; }
+        .add-part-btn { background: var(--btn-secondary-bg); border: 1px dashed var(--border-light); border-radius: var(--radius-part); padding: 10px; text-align: center; cursor: pointer; margin-top: 4px; }
+
+        .empty-msg { text-align: center; padding: 40px 20px; color: var(--text-secondary); background: var(--card-bg); border-radius: var(--radius-card); }
+        footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin: 8px 0 16px;
+            flex-shrink: 0;
+        }
+
+        .slide-feedback {
+            position: fixed;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2100;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+        }
+        .slide-feedback.show { opacity: 1; transform: translateX(-50%) scale(1); }
+        .slide-feedback.success { background: #1e4620e6; border-left: 5px solid #86efac; }
+        .slide-feedback.error { background: #7f1d1de6; border-left: 5px solid #f87171; }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 2000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
+
+        .modal-mask {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s;
+        }
+        .modal-mask.active { visibility: visible; opacity: 1; }
+        .modal-container {
+            background: var(--card-bg); width: 86%; max-width: 420px;
+            border-radius: 40px; padding: 20px; max-height: 80vh; overflow-y: auto;
+        }
+        .modal-container h3 { font-size: 1.4rem; margin-bottom: 16px; text-align: center; }
+        .field { margin-bottom: 14px; }
+        .field label { font-size: 0.75rem; font-weight: 600; display: block; margin-bottom: 4px; }
+        .field input, .field select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border-light); border-radius: 32px; font-size: 0.85rem; background: var(--card-bg); color: var(--text-primary); }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-btns button { flex:1; padding: 10px; border-radius: 40px; font-weight: 600; border: none; cursor: pointer; }
+        .btn-confirm { background: var(--accent); color: white; }
+        .btn-cancel { background: var(--btn-secondary-bg); color: var(--text-primary); }
+
+        .history-item, .alert-item { font-size: 0.75rem; padding: 8px; border-bottom: 1px solid var(--border-light); }
+        .alert-item { background: var(--warning-bg); border-left: 3px solid var(--warning-border); }
+        .toggle-switch {
+            display: inline-block; width: 44px; height: 24px; background: #cbd5e1; border-radius: 30px; position: relative; cursor: pointer; transition: 0.2s;
+        }
+        .toggle-switch.active { background: var(--accent); }
+        .toggle-switch:after { content: ''; width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.2s; }
+        .toggle-switch.active:after { left: 22px; }
+        .warehouse-list, .model-manage-list { margin: 10px 0; }
+        .warehouse-item, .model-manage-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+        .del-wh-btn, .del-model-btn { background: #fee2e2; border: none; padding: 2px 8px; border-radius: 20px; color: #e11d48; cursor: pointer; font-size: 0.65rem; }
+        .add-wh-btn { background: var(--accent-light); border: none; padding: 4px 10px; border-radius: 30px; margin-top: 8px; cursor: pointer; font-size: 0.7rem; color: var(--accent); }
+        .theme-select, .style-select { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+        .theme-option, .style-option { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 40px; background: var(--btn-secondary-bg); cursor: pointer; font-size: 0.75rem; border: 1px solid var(--border-light); }
+        .theme-option.active, .style-option.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .color-preview { width: 20px; height: 20px; border-radius: 20px; }
+        .instruction-content { font-size: 0.85rem; line-height: 1.5; color: var(--text-primary); }
+        .instruction-content p { margin: 12px 0; }
+        .instruction-content ul { padding-left: 20px; margin: 8px 0; }
+        .instruction-content li { margin: 6px 0; }
+        .instruction-highlight { background: var(--accent-light); padding: 2px 6px; border-radius: 12px; font-weight: 500; }
+        .menu-func-list { background: var(--btn-secondary-bg); border-radius: 16px; padding: 8px 12px; margin: 8px 0; }
+
+        .compact-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+        .compact-table th, .compact-table td { padding: 6px 4px; border: 1px solid var(--border-light); text-align: center; }
+        .compact-table th { background: var(--accent); color: white; }
+
+        .fullscreen-registry {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-body);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .fullscreen-registry.active { display: flex; }
+        .registry-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+        .registry-header h2 { font-size: 1.4rem; color: var(--accent); }
+        .registry-header-buttons { display: flex; gap: 12px; }
+        .close-registry {
+            background: var(--btn-secondary-bg);
+            border: none;
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .registry-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
+        }
+        .registry-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .registry-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+        .registry-card-header {
+            background: var(--accent-light);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .registry-card-header span { color: var(--accent); font-size: 1rem; }
+        .card-header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .quick-add-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            width: 28px;
+            height: 28px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .registry-item-list {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .registry-item {
+            background: var(--btn-secondary-bg);
+            border-radius: 20px;
+            padding: 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+        .registry-item span { color: var(--text-primary); }
+        .editable-qty {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            background-color: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            margin-right: 12px;
+            margin-left: 8px;
+        }
+        .editable-qty:active { transform: scale(0.95); }
+        .editable-qty .icon {
+            font-size: 0.7rem;
+            margin-left: 4px;
+        }
+        .del-reg-item {
+            background: none;
+            border: none;
+            color: #e11d48;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .add-category-btn {
+            background: var(--btn-secondary-bg);
+            border: 1px dashed var(--border-light);
+            border-radius: 30px;
+            padding: 10px;
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+        .export-buttons button {
+            flex: 1;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .fullscreen-manage-category {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-body);
+            z-index: 2100;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .fullscreen-manage-category.active { display: flex; }
+        .manage-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .manage-header h2 { font-size: 1.4rem; color: var(--accent); }
+        .close-manage {
+            background: var(--btn-secondary-bg);
+            border: none;
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .manage-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .category-item {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-light);
+        }
+        .category-item span { font-size: 0.9rem; font-weight: 500; }
+        .del-cat-btn {
+            background: #fee2e2;
+            border: none;
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #b91c1c;
+        }
+        .add-cat-field {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            border: 1px solid var(--border-light);
+        }
+        .add-cat-field input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 0.9rem;
+        }
+        .add-cat-field button {
+            background: var(--accent);
+            border: none;
+            color: white;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
+</head>
+<body>
+<div class="app-container" id="mainAppContainer">
+    <div class="card">
+        <div class="header-stats"><h1>📱 配件库存</h1><div class="badge" id="totalModels">0 型号</div></div>
+        <div class="stats-row"><span>💰 总成本: <strong id="totalValue">0.00</strong></span><span>📦 总配件: <strong id="totalQty">0</strong></span></div>
+    </div>
+    <div class="search-section">
+        <div class="search-box"><span>🔍</span><input type="text" id="searchInput" placeholder="搜索型号/颜色/配件（支持空格多关键词）"></div>
+        <div class="vertical-buttons">
+            <button class="btn-primary" id="openRegistryBtn">📝 缺货登记</button>
+            <div class="menu-container"><button class="menu-btn" id="menuBtn">⚙️ 更多功能</button><div class="menu-dropdown" id="menuDropdown">
+                <button id="themeMenuItem">🎨 主题设置</button><button id="modelManageMenuItem">📋 型号管理</button>
+                <button id="warehouseManageMenuItem">🏚️ 仓库管理</button><button id="snapshotMenuItem">📸 保存快照</button>
+                <button id="swipeToggleMenuItem">👈 左滑出库</button><button id="historyMenuItem">📜 操作历史</button>
+                <button id="shortageMenuItem">📋 缺货清单</button>
+                <button id="importExcelBtn">📂 导入Excel</button><button id="exportExcelBtn">💾 导出Excel</button>
+                <button id="instructionMenuItem">📖 使用说明</button>
+            </div></div>
+        </div>
+    </div>
+    <div class="inventory-scroll" id="modelList"></div>
+    <footer>← 左滑出库 | 右滑入库 → | 滑动超过卡片一半生效</footer>
+</div>
+<div id="toast" class="toast"></div>
+<div id="slideFeedback" class="slide-feedback"></div>
+
+<div id="modelModal" class="modal-mask"><div class="modal-container"><h3 id="modelModalTitle">型号</h3><div class="field"><label>型号名称</label><input type="text" id="modelName" placeholder="例: iPhone 12"></div><div class="modal-btns"><button class="btn-cancel" id="cancelModelBtn">取消</button><button class="btn-confirm" id="confirmModelBtn">保存</button></div></div></div>
+<div id="partModal" class="modal-mask"><div class="modal-container"><h3 id="partModalTitle">配件</h3><div class="field"><label>配件名称</label><input type="text" id="partName"></div><div class="field"><label>颜色</label><input type="text" id="partColor"></div><div class="field"><label>数量</label><input type="number" id="partQty" value="0"></div><div class="field"><label>成本价</label><input type="number" id="partPrice" step="0.01"></div><div class="field" id="warehouseField"><label>仓库</label><select id="partWarehouse"></select></div><div class="field"><label>位置</label><input type="text" id="partLocation"></div><div class="field"><label>最低预警</label><input type="number" id="partMinStock" value="0"></div><div class="modal-btns"><button class="btn-cancel" id="cancelPartBtn">取消</button><button class="btn-confirm" id="confirmPartBtn">保存</button></div></div></div>
+<div id="qtyModal" class="modal-mask"><div class="modal-container"><h3 id="qtyModalTitle">调整数量</h3><div class="field"><label>数量</label><input type="number" id="qtyInput" value="1" min="1"></div><div class="modal-btns"><button class="btn-cancel" id="cancelQtyBtn">取消</button><button class="btn-confirm" id="confirmQtyBtn">确认</button></div></div></div>
+<div id="historyModal" class="modal-mask"><div class="modal-container"><h3>📜 操作历史</h3><div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;"><button id="clearHistoryBtn" style="background:var(--btn-secondary-bg); border:none; padding:4px 12px; border-radius:30px;">清空</button><button id="exportHistoryBtn" style="background:var(--btn-secondary-bg); border:none; padding:4px 12px; border-radius:30px;">导出历史(CSV)</button></div><div id="historyList" style="max-height:280px; overflow-y:auto;"></div><div class="modal-btns"><button class="btn-cancel" id="closeHistoryBtn">关闭</button></div></div></div>
+<div id="alertModal" class="modal-mask"><div class="modal-container"><h3>⚠️ 库存预警</h3><div id="alertList" style="max-height:280px; overflow-y:auto;"></div><div class="modal-btns"><button class="btn-cancel" id="closeAlertBtn">关闭</button></div></div></div>
+<div id="themeModal" class="modal-mask"><div class="modal-container"><h3>🎨 主题设置</h3><div id="themeSettingsContent"></div><div class="modal-btns"><button class="btn-cancel" id="closeThemeBtn">关闭</button></div></div></div>
+<div id="modelManageModal" class="modal-mask"><div class="modal-container"><h3>📋 型号管理</h3><div id="modelManageContent"></div><div class="modal-btns"><button class="btn-cancel" id="closeModelManageBtn">关闭</button></div></div></div>
+<div id="warehouseManageModal" class="modal-mask"><div class="modal-container"><h3>🏚️ 仓库管理</h3><div id="warehouseManageContent"></div><div class="modal-btns"><button class="btn-cancel" id="closeWarehouseManageBtn">关闭</button></div></div></div>
+<div id="instructionModal" class="modal-mask"><div class="modal-container"><h3>📖 完整使用说明</h3><div class="instruction-content" id="instructionText"></div><div class="modal-btns"><button class="btn-cancel" id="closeInstructionBtn">关闭</button></div></div></div>
+
+<div id="shortageModal" class="modal-mask">
+    <div class="modal-container" style="max-width: 90%;">
+        <h3>📦 缺货清单 (低于预警线)</h3>
+        <div style="max-height: 55vh; overflow-y: auto;">
+            <table class="compact-table" id="shortageTable">
+                <thead><tr><th>型号</th><th>配件</th><th>颜色</th><th>库存</th><th>预警线</th><th>建议补货</th></tr></thead>
+                <tbody id="shortageTableBody"></tbody>
+            </table>
+        </div>
+        <div class="modal-btns">
+            <button class="btn-confirm" id="exportShortageExcelBtn">📎 导出表格</button>
+            <button class="btn-confirm" id="exportShortageImageBtn">🖼️ 导出图片</button>
+            <button class="btn-cancel" id="closeShortageBtn">关闭</button>
+        </div>
+    </div>
+</div>
+
+<div id="fullscreenRegistry" class="fullscreen-registry">
+    <div class="registry-header">
+        <h2>📝 缺件登记本</h2>
+        <div class="registry-header-buttons">
+            <button class="close-registry" id="closeRegistryFull">← 返回库存</button>
+        </div>
+    </div>
+    <div class="registry-content">
+        <div id="registryCardsContainer" class="registry-cards-container"></div>
+        <div class="add-category-btn" id="manageCategoryFullBtn">📁 管理分类卡片</div>
+    </div>
+    <div class="export-buttons">
+        <button id="exportRegistryExcelFull">📎 导出表格</button>
+        <button id="exportRegistryImageFull">🖼️ 导出图片</button>
+    </div>
+</div>
+
+<div id="fullscreenManageCategory" class="fullscreen-manage-category">
+    <div class="manage-header">
+        <h2>📁 管理分类</h2>
+        <button class="close-manage" id="closeManageFull">← 返回</button>
+    </div>
+    <div class="manage-content">
+        <div class="category-list" id="fullscreenCategoryList"></div>
+        <div class="add-cat-field">
+            <input type="text" id="newCatNameInput" placeholder="新分类名称 (例如: 后盖)">
+            <button id="addCatFullBtn">➕ 添加</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== 核心数据 ==========
+    let models = []; let nextModelId = 1; let nextPartId = 1; let historyLog = []; let warehouses = ['总仓', '维修部', '零售区'];
+    let currentModelId = null, currentPartId = null; let currentQtyModelId = null, currentQtyPartId = null, currentQtyType = 'in';
+    let enableWarehouse = true; let showModelTotal = false; let swipeEnabled = true;
+    let missingRegistry = [];
+
+    const themes = [{ id: 'dawn', name: '晨曦白', color: '#5b8cbc' },{ id: 'mist', name: '雾霾蓝', color: '#7f9eb5' },{ id: 'macha', name: '抹茶绿', color: '#89b68b' },{ id: 'pink', name: '淡藕粉', color: '#c9a9b4' },{ id: 'lavender', name: '浅灰紫', color: '#9f9ac6' }];
+    const uiStyles = [{ id: 'bubble', name: '圆润泡泡' },{ id: 'minimal', name: '清爽极简' },{ id: 'glass', name: '轻透玻璃' },{ id: 'compact', name: '紧凑专业' },{ id: 'retro', name: '复古卡片' }];
+    let currentTheme = 'dawn', currentStyle = 'bubble';
+
+    function showToast(msg) { const toast = document.getElementById('toast'); toast.innerText = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+    function showSlideMessage(msg, isError = false) {
+        const feedbackDiv = document.getElementById('slideFeedback');
+        feedbackDiv.innerHTML = `<i>${isError ? '⚠️' : '✅'}</i> <span>${msg}</span>`;
+        feedbackDiv.className = `slide-feedback ${isError ? 'error' : 'success'}`;
+        feedbackDiv.classList.add('show');
+        setTimeout(() => feedbackDiv.classList.remove('show'), 5000);
+        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(isError ? 200 : 100);
+    }
+    function applyTheme(themeId) { document.body.classList.remove(...themes.map(t => `theme-${t.id}`)); document.body.classList.add(`theme-${themeId}`); currentTheme = themeId; localStorage.setItem('app_theme', themeId); }
+    function applyStyle(styleId) { document.body.classList.remove(...uiStyles.map(s => `style-${s.id}`)); document.body.classList.add(`style-${styleId}`); currentStyle = styleId; localStorage.setItem('app_style', styleId); }
+    function loadPreferences() { const savedTheme = localStorage.getItem('app_theme'); if (savedTheme && themes.find(t=>t.id===savedTheme)) applyTheme(savedTheme); else applyTheme('dawn'); const savedStyle = localStorage.getItem('app_style'); if(savedStyle && uiStyles.find(s=>s.id===savedStyle)) applyStyle(savedStyle); else applyStyle('bubble'); const savedSwipe = localStorage.getItem('swipe_enabled'); if (savedSwipe !== null) swipeEnabled = savedSwipe === 'true'; else swipeEnabled = true; }
+    function sortModelsByName() { models.sort((a,b)=>a.name.localeCompare(b.name,'zh')); models.forEach(m=>{ m.parts.sort((a,b)=>{ if(a.name!==b.name) return a.name.localeCompare(b.name,'zh'); else return (a.color||'').localeCompare(b.color||'', 'zh'); }); }); }
+    function initDemo() { models = [{ id:1,name:'iPhone 12',parts:[{id:1,name:'后盖',color:'白色',qty:5,price:120,warehouse:'总仓',location:'A1',minStock:2},{id:2,name:'屏幕',color:'黑色',qty:3,price:280,warehouse:'维修部',location:'B2',minStock:1},{id:3,name:'电池',color:'原装',qty:8,price:65,warehouse:'零售区',location:'C3',minStock:3},{id:4,name:'中框',color:'银色',qty:2,price:150,warehouse:'总仓',location:'D1',minStock:1},{id:5,name:'摄像头',color:'蓝色',qty:4,price:180,warehouse:'维修部',location:'E2',minStock:2}]},{id:2,name:'小米13',parts:[{id:6,name:'后盖',color:'黑色',qty:2,price:90,warehouse:'总仓',location:'A2',minStock:1},{id:7,name:'后盖',color:'白色',qty:1,price:90,warehouse:'总仓',location:'A2',minStock:1},{id:8,name:'屏幕',color:'黑色',qty:1,price:220,warehouse:'维修部',location:'B1',minStock:1},{id:9,name:'电池',color:'原装',qty:4,price:55,warehouse:'零售区',location:'C2',minStock:2},{id:10,name:'中框',color:'黑色',qty:3,price:120,warehouse:'总仓',location:'D2',minStock:1},{id:11,name:'摄像头',color:'黑色',qty:5,price:160,warehouse:'维修部',location:'E1',minStock:2}]}]; nextModelId=3; nextPartId=12; sortModelsByName(); addHistory("系统","加载演示数据"); }
+    function saveLocal() { localStorage.setItem('models_data', JSON.stringify(models)); localStorage.setItem('nextModelId', nextModelId); localStorage.setItem('nextPartId', nextPartId); localStorage.setItem('warehouses', JSON.stringify(warehouses)); localStorage.setItem('history_log', JSON.stringify(historyLog)); localStorage.setItem('enable_warehouse', enableWarehouse); localStorage.setItem('show_model_total', showModelTotal); localStorage.setItem('swipe_enabled', swipeEnabled); localStorage.setItem('missing_registry', JSON.stringify(missingRegistry)); }
+    function loadLocal() { 
+        const stored = localStorage.getItem('models_data'); 
+        if (stored && stored !== '[]') { 
+            try { models = JSON.parse(stored); models.forEach(m=>{ if(!Array.isArray(m.parts)){ const newParts=[]; for(let key in m.parts) newParts.push({...m.parts[key],id:nextPartId++}); m.parts=newParts; } }); } catch(e){ initDemo(); } 
+        } else { initDemo(); } 
+        if (!models || models.length===0) initDemo(); 
+        sortModelsByName(); 
+        nextModelId = parseInt(localStorage.getItem('nextModelId')) || (models.length?Math.max(...models.map(m=>m.id))+1:3); 
+        nextPartId = parseInt(localStorage.getItem('nextPartId')) || (models.reduce((max,m)=>Math.max(max, ...m.parts.map(p=>p.id)),0)+1); 
+        const wh = localStorage.getItem('warehouses'); if(wh) warehouses = JSON.parse(wh); 
+        const hist = localStorage.getItem('history_log'); if(hist) historyLog = JSON.parse(hist); 
+        const ew = localStorage.getItem('enable_warehouse'); if(ew!==null) enableWarehouse = ew==='true'; 
+        const sw = localStorage.getItem('swipe_enabled'); if(sw!==null) swipeEnabled = sw==='true'; 
+        const registry = localStorage.getItem('missing_registry'); 
+        if(registry) missingRegistry = JSON.parse(registry); 
+        else missingRegistry = [{ category: "后盖", items: [{ device: "Mate40", part: "后盖", qty: 2 },{ device: "Nova7", part: "后盖", qty: 3 }], collapsed: false },{ category: "摄像头", items: [{ device: "P50", part: "前置摄像头", qty: 1 }], collapsed: false }]; 
+    }
+    function addHistory(action, detail) { historyLog.unshift({ time: new Date().toLocaleString(), action, detail }); if (historyLog.length > 200) historyLog.pop(); saveLocal(); }
+    function updateStats() { let totalVal=0,totalQty=0; models.forEach(m=>{ m.parts.forEach(p=>{ totalVal+=p.qty*p.price; totalQty+=p.qty; }); }); document.getElementById('totalValue').innerText=totalVal.toFixed(2); document.getElementById('totalQty').innerText=totalQty; document.getElementById('totalModels').innerText=models.length+' 型号'; document.querySelectorAll('.model-card').forEach(card=>{ const modelId=parseInt(card.getAttribute('data-model-id')); const model=models.find(m=>m.id===modelId); if(model&&showModelTotal){ const totalSpan=card.querySelector('.model-total'); if(totalSpan) totalSpan.innerText=`💰 ${getModelTotalValue(model).toFixed(2)}`; } }); }
+    function getModelTotalValue(model) { let total=0; model.parts.forEach(p=>{ total+=p.qty*p.price; }); return total; }
+    function escapeHtml(s) { return s?.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])) || ''; }
+    function splitKeywords(kw) { return kw.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0); }
+    function partMatches(part, modelName, keywords) { let texts = [modelName.toLowerCase(), part.name.toLowerCase(), part.color ? part.color.toLowerCase() : '', part.location ? part.location.toLowerCase() : '']; for (let kw of keywords) { let ok = false; for (let t of texts) if (t.includes(kw)) { ok = true; break; } if (!ok) return false; } return true; }
+    function smartSearch(keyword) { if (!keyword.trim()) return models.map(m => ({ model: m, matchedParts: m.parts })); const keywords = splitKeywords(keyword); if (keywords.length === 0) return []; const results = []; for (let model of models) { let matchedParts = []; for (let part of model.parts) { if (partMatches(part, model.name, keywords)) matchedParts.push(part); } if (matchedParts.length > 0) results.push({ model: model, matchedParts: matchedParts }); } return results; }
+
+    function getIntensityColor(deltaX, maxDistance = 80) {
+        const absX = Math.min(Math.abs(deltaX), maxDistance);
+        let intensity = absX / maxDistance;
+        if (deltaX > 0) {
+            const startR = 74, startG = 222, startB = 128; const endR = 20, endG = 83, endB = 45;
+            return `rgb(${Math.round(startR + (endR-startR)*intensity)}, ${Math.round(startG + (endG-startG)*intensity)}, ${Math.round(startB + (endB-startB)*intensity)})`;
+        } else if (deltaX < 0) {
+            const startR = 248, startG = 113, startB = 113; const endR = 127, endG = 29, endB = 29;
+            return `rgb(${Math.round(startR + (endR-startR)*intensity)}, ${Math.round(startG + (endG-startG)*intensity)}, ${Math.round(startB + (endB-startB)*intensity)})`;
+        }
+        return '';
+    }
+    function quickModifyStockLocal(modelId, partId, type, delta) {
+        const model = models.find(m => m.id === modelId); if (!model) return false;
+        const part = model.parts.find(p => p.id === partId); if (!part) return false;
+        if (type === 'out' && part.qty < delta) { showSlideMessage(`❌ 出库失败，仅剩 ${part.qty} 个`, true); return false; }
+        const oldQty = part.qty;
+        if (type === 'in') part.qty += delta; else part.qty -= delta;
+        addHistory(type === 'in' ? '入库' : '出库', `${model.name} - ${part.name} ${part.color ? '('+part.color+')' : ''} ${delta}个 (${oldQty}→${part.qty})`);
+        saveLocal();
+        const partCard = document.querySelector(`.part-card[data-part-id='${partId}']`);
+        if (partCard) { const qtySpan = partCard.querySelector('.part-qty'); if (qtySpan) qtySpan.innerText = `📦 ${part.qty}`; }
+        updateStats();
+        showSlideMessage(`${type === 'in' ? '📥 入库成功 +'+delta : '📤 出库成功 -'+delta} (现${part.qty})`, false);
+        return true;
+    }
+
+    let swipeActive = false, currentSwipePart = null, startX = 0, startY = 0, currentTranslateX = 0, swipeCardWidth = 0;
+    function onTouchStart(e) { if (!swipeEnabled) return; const partCard = e.target.closest('.part-card'); if (!partCard) return; swipeActive = true; currentSwipePart = partCard; startX = e.touches[0].clientX; startY = e.touches[0].clientY; currentTranslateX = 0; swipeCardWidth = partCard.offsetWidth; partCard.style.transition = 'none'; partCard.style.transform = 'translateX(0px)'; partCard.classList.add('swiping'); }
+    function onTouchMove(e) { if (!swipeActive || !currentSwipePart) return; const deltaX = e.touches[0].clientX - startX; const deltaY = e.touches[0].clientY - startY; if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 8) { e.preventDefault(); currentTranslateX = deltaX; currentSwipePart.style.transform = `translateX(${deltaX}px)`; const bgColor = getIntensityColor(deltaX, 80); if (bgColor) { currentSwipePart.style.background = bgColor; currentSwipePart.style.border = 'none'; } } }
+    function onTouchEnd(e) { if (!swipeActive || !currentSwipePart) { resetSwipe(); return; } const deltaX = currentTranslateX; const threshold = swipeCardWidth * 0.45; const modelId = parseInt(currentSwipePart.closest('.model-card').getAttribute('data-model-id')); const partId = parseInt(currentSwipePart.getAttribute('data-part-id')); currentSwipePart.style.transition = 'transform 0.2s ease, background 0.2s'; if (Math.abs(deltaX) > threshold) { const isRight = deltaX > 0; const success = quickModifyStockLocal(modelId, partId, isRight ? 'in' : 'out', 1); if (success) { currentSwipePart.style.transform = `translateX(${isRight ? 80 : -80}px)`; setTimeout(() => { if (currentSwipePart) currentSwipePart.style.transform = ''; }, 160); } else { currentSwipePart.style.transform = ''; resetSwipe(); } } else { currentSwipePart.style.transform = ''; resetSwipe(); } setTimeout(() => { resetSwipe(); }, 200); }
+    function resetSwipe() { if (currentSwipePart) { currentSwipePart.style.transform = ''; currentSwipePart.style.background = ''; currentSwipePart.style.border = ''; currentSwipePart.style.transition = ''; currentSwipePart.classList.remove('swiping'); } swipeActive = false; currentSwipePart = null; startX = 0; startY = 0; currentTranslateX = 0; swipeCardWidth = 0; }
+    function initSwipe() { const container = document.getElementById('modelList'); container.removeEventListener('touchstart', onTouchStart); container.removeEventListener('touchmove', onTouchMove); container.removeEventListener('touchend', onTouchEnd); if (swipeEnabled) { container.addEventListener('touchstart', onTouchStart, { passive: false }); container.addEventListener('touchmove', onTouchMove, { passive: false }); container.addEventListener('touchend', onTouchEnd); } }
+
+    // 离线增强：图片导出降级（无需网络也能导出HTML备份）
+    async function exportImageWithFallback(element, filename = 'export.png') {
+        try {
+            if (window.html2canvas && typeof window.html2canvas === 'function') {
+                const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
+                if (canvas && canvas.width > 0) {
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    showToast('图片已导出 (html2canvas)');
+                    return true;
+                }
+                throw new Error('html2canvas 生成 canvas 为空');
+            } else {
+                throw new Error('html2canvas 库未加载');
+            }
+        } catch (e1) {
+            console.warn('html2canvas 失败:', e1);
+            try {
+                if (window.domtoimage && typeof window.domtoimage.toPng === 'function') {
+                    const dataUrl = await window.domtoimage.toPng(element, { quality: 1 });
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = dataUrl;
+                    link.click();
+                    showToast('图片已导出 (dom-to-image)');
+                    return true;
+                } else {
+                    throw new Error('dom-to-image 未加载');
+                }
+            } catch (e2) {
+                console.warn('dom-to-image 失败:', e2);
+                try {
+                    const outerHtml = element.outerHTML;
+                    const style = document.createElement('style');
+                    style.textContent = 'table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #aaa; padding: 6px; }';
+                    const wrapper = document.createElement('div');
+                    wrapper.appendChild(style);
+                    wrapper.appendChild(element.cloneNode(true));
+                    const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${filename}</title><style>body { font-family: system-ui; padding: 20px; }</style></head><body>${wrapper.innerHTML}</body></html>`;
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const link = document.createElement('a');
+                    link.download = filename.replace('.png', '.html');
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                    showToast('截图失败，已导出 HTML 文件备份');
+                    return false;
+                } catch (e3) {
+                    console.error('所有导出方式均失败:', e3);
+                    showToast('导出图片失败，请尝试导出 Excel');
+                    return false;
+                }
+            }
+        }
+    }
+
+    async function takeSnapshot() {
+        const groups = []; for (let model of models) { groups.push({ modelName: model.name, parts: model.parts.map(p=>({ name:p.name, color:p.color||'', qty:p.qty, price:p.price })) }); }
+        let tableHtml = `<table style="border-collapse: collapse; width:100%; font-size:12px; background:white;"><thead><tr style="background:${getComputedStyle(document.body).getPropertyValue('--accent').trim()};color:white;"><th style="padding:8px;border:1px solid #aaa;">型号</th><th style="padding:8px;border:1px solid #aaa;">配件</th><th style="padding:8px;border:1px solid #aaa;">颜色</th><th style="padding:8px;border:1px solid #aaa;">数量</th><th style="padding:8px;border:1px solid #aaa;">成本(元)</th></tr></thead><tbody>`;
+        for (let group of groups) { const rowCount = group.parts.length; for (let i=0;i<rowCount;i++) { const part = group.parts[i]; tableHtml += `<tr>${i===0?`<td style="padding:6px;border:1px solid #ccc;" rowspan="${rowCount}">${escapeHtml(group.modelName)}</td>`:''}<td style="padding:6px;border:1px solid #ccc;">${escapeHtml(part.name)}</td><td style="padding:6px;border:1px solid #ccc;">${escapeHtml(part.color)}</td><td style="padding:6px;border:1px solid #ccc;">${part.qty}</td><td style="padding:6px;border:1px solid #ccc;">${part.price.toFixed(2)}</td></tr>`; } }
+        tableHtml += `</tbody></table>`;
+        const container = document.createElement('div'); container.style.padding='16px'; container.style.backgroundColor='#ffffff'; container.style.width='fit-content'; container.style.minWidth='320px'; container.innerHTML = tableHtml; document.body.appendChild(container);
+        await exportImageWithFallback(container, `库存明细_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.png`);
+        document.body.removeChild(container);
+    }
+
+    async function exportShortageImage() {
+        const table = document.querySelector('#shortageModal .compact-table');
+        if (!table) { showToast("未找到表格"); return; }
+        const clone = table.cloneNode(true);
+        const div = document.createElement('div');
+        div.style.background = 'white';
+        div.style.padding = '16px';
+        div.appendChild(clone);
+        document.body.appendChild(div);
+        await exportImageWithFallback(div, `缺货清单_${Date.now()}.png`);
+        document.body.removeChild(div);
+    }
+
+    async function exportRegistryImageFull() {
+        let tableHtml = `<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; font-size:12px;">`;
+        missingRegistry.forEach(cat => {
+            tableHtml += `<tr><th colspan="3" style="background:#e2e8f0; padding:8px;">${escapeHtml(cat.category)}</th></tr>`;
+            cat.items.forEach(it => {
+                tableHtml += `<tr><td style="border:1px solid #aaa; padding:6px;">${escapeHtml(it.device)}</td><td style="border:1px solid #aaa; padding:6px;">${escapeHtml(it.part)}</td><td style="border:1px solid #aaa; padding:6px;">${it.qty || 1}${it.qty ? ' 个' : ''} </td></tr>`;
+            });
+        });
+        tableHtml += `</table>`;
+        const container = document.createElement('div');
+        container.style.background = 'white';
+        container.style.padding = '16px';
+        container.innerHTML = `<h3 style="margin-bottom:12px;">缺件登记本</h3>${tableHtml}`;
+        document.body.appendChild(container);
+        await exportImageWithFallback(container, `缺件登记本_${Date.now()}.png`);
+        document.body.removeChild(container);
+    }
+
+    function exportToExcel() {
+        if (typeof XLSX === 'undefined') { showToast("❌ Excel库未加载，请联网后使用导出功能"); return; }
+        const data=getExcelData(); const ws=XLSX.utils.aoa_to_sheet(data); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'配件库存'); XLSX.writeFile(wb,`配件库存_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.xlsx`); addHistory("导出","导出Excel文件"); showToast("导出成功");
+    }
+    function getExcelData() { const data=[['型号','配件','颜色','数量','成本','仓库','位置','预警']]; models.forEach(m=>{ m.parts.forEach(p=>{ data.push([m.name,p.name,p.color||'',p.qty,p.price,p.warehouse,p.location||'',p.minStock]); }); }); return data; }
+    function importExcel(file){
+        if (typeof XLSX === 'undefined') { showToast("❌ Excel库未加载，请联网后使用导入功能"); return; }
+        const reader=new FileReader(); reader.onload=(e)=>{ const data=new Uint8Array(e.target.result); const workbook=XLSX.read(data,{type:'array'}); const firstSheet=workbook.Sheets[workbook.SheetNames[0]]; const rows=XLSX.utils.sheet_to_json(firstSheet,{header:1,defval:""}); if(!rows||rows.length<2){alert('Excel文件至少需要表头+数据行');return;} const headers=rows[0].map(cell=>String(cell).trim()); const idx={型号:headers.findIndex(h=>h==='型号'),配件:headers.findIndex(h=>h==='配件'),颜色:headers.findIndex(h=>h==='颜色'),数量:headers.findIndex(h=>h==='数量'),成本:headers.findIndex(h=>h==='成本'),仓库:headers.findIndex(h=>h==='仓库'),位置:headers.findIndex(h=>h==='位置'),预警:headers.findIndex(h=>h==='预警')}; if(idx.型号===-1||idx.配件===-1){alert('Excel缺少型号/配件列');return;} const newModelsMap=new Map(); for(let i=1;i<rows.length;i++){ const row=rows[i]; const modelName=row[idx.型号]?String(row[idx.型号]).trim():''; const partName=row[idx.配件]?String(row[idx.配件]).trim():''; if(!modelName||!partName)continue; if(!newModelsMap.has(modelName)) newModelsMap.set(modelName,{name:modelName,partsMap:new Map()}); const modelObj=newModelsMap.get(modelName); const color=row[idx.颜色]?String(row[idx.颜色]).trim():''; const qty=parseInt(row[idx.数量])||0; const price=parseFloat(row[idx.成本])||0; const warehouse=row[idx.仓库]?String(row[idx.仓库]).trim():'总仓'; const location=row[idx.位置]?String(row[idx.位置]).trim():''; const minStock=parseInt(row[idx.预警])||0; const key=`${partName}|${color}`; modelObj.partsMap.set(key,{name:partName,color,qty,price,warehouse,location,minStock}); } if(newModelsMap.size===0){alert('没有有效数据行');return;} if(confirm(`导入 ${newModelsMap.size} 个型号，覆盖当前数据？`)){ const newModels=[]; let newModelId=1,newPartId=1; for(let [name,obj] of newModelsMap.entries()){ const parts=[]; for(let [k,partData] of obj.partsMap.entries()){ parts.push({id:newPartId++,...partData}); } newModels.push({id:newModelId++,name,parts}); } models=newModels; nextModelId=newModelId; nextPartId=newPartId; sortModelsByName(); saveLocal(); renderList(); addHistory("导入",`导入Excel，共${newModelsMap.size}个型号`); alert('导入成功'); } }; reader.readAsArrayBuffer(file); }
+    function downloadFile(content,filename,mimeType){ const blob=new Blob(["\uFEFF"+content],{type:mimeType}); const link=document.createElement('a'); const url=URL.createObjectURL(blob); link.href=url; link.download=filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
+    function showThemeModal() { /* 省略不变，与原有完全一致 */ const container=document.getElementById('themeSettingsContent'); container.innerHTML=`<div style="margin-bottom:16px;"><div style="font-weight:600; margin-bottom:8px;">🎨 主题颜色</div><div class="theme-select" id="themeSelectModal"></div></div><div><div style="font-weight:600; margin-bottom:8px;">🖌️ UI风格</div><div class="style-select" id="styleSelectModal"></div></div>`; const themeSelect=document.getElementById('themeSelectModal'); themeSelect.innerHTML=themes.map(t=>`<div class="theme-option ${currentTheme===t.id?'active':''}" data-theme="${t.id}"><div class="color-preview" style="background:${t.color};"></div>${t.name}</div>`).join(''); themeSelect.querySelectorAll('.theme-option').forEach(opt=>{ opt.addEventListener('click',()=>{ applyTheme(opt.getAttribute('data-theme')); showThemeModal(); }); }); const styleSelect=document.getElementById('styleSelectModal'); styleSelect.innerHTML=uiStyles.map(s=>`<div class="style-option ${currentStyle===s.id?'active':''}" data-style="${s.id}">${s.name}</div>`).join(''); styleSelect.querySelectorAll('.style-option').forEach(opt=>{ opt.addEventListener('click',()=>{ applyStyle(opt.getAttribute('data-style')); showThemeModal(); }); }); document.getElementById('themeModal').classList.add('active'); }
+    function showModelManageModal(){ const container=document.getElementById('modelManageContent'); if(models.length===0) container.innerHTML='<div style="color:var(--text-secondary); padding:8px 0;">暂无型号</div>'; else{ container.innerHTML=`<div style="margin-bottom:12px;"><button class="add-model-btn" id="addModelFromManageBtn">➕ 新增机型</button></div>` + models.map(m=>`<div class="model-manage-item"><span>📱 ${escapeHtml(m.name)}</span><button class="del-model-btn" data-id="${m.id}">删除</button></div>`).join(''); container.querySelectorAll('.del-model-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ deleteModelById(parseInt(btn.getAttribute('data-id'))); showModelManageModal(); }); }); document.getElementById('addModelFromManageBtn').onclick=()=>{ openModelModal(null); closeModelManageModal(); }; } document.getElementById('modelManageModal').classList.add('active'); }
+    function closeModelManageModal(){ document.getElementById('modelManageModal').classList.remove('active'); }
+    function deleteModelById(modelId) { if(confirm('删除整个型号？不可恢复。')){ const model=models.find(m=>m.id===modelId); if(model){ models=models.filter(m=>m.id!==modelId); sortModelsByName(); addHistory("删除型号",`${model.name}`); saveLocal(); renderList(); } } }
+    function showWarehouseManageModal(){ const container=document.getElementById('warehouseManageContent'); container.innerHTML=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><span>启用仓库功能</span><div class="toggle-switch ${enableWarehouse?'active':''}" id="whToggle"></div></div><div id="whPanel" style="${enableWarehouse?'display:block':'display:none'}"><div id="warehouseList"></div><button id="addWarehouseBtn" class="add-wh-btn">+ 添加仓库</button></div>`; const whToggle=document.getElementById('whToggle'); whToggle.onclick=()=>{ enableWarehouse=!enableWarehouse; saveLocal(); showWarehouseManageModal(); renderList(); }; if(enableWarehouse){ const whListDiv=document.getElementById('warehouseList'); whListDiv.innerHTML=warehouses.map(w=>`<div class="warehouse-item"><span>🏚️ ${escapeHtml(w)}</span><button class="del-wh-btn" data-wh="${escapeHtml(w)}">删除</button></div>`).join(''); whListDiv.querySelectorAll('.del-wh-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ const whName=btn.getAttribute('data-wh'); if(warehouses.length<=1){alert('至少保留一个仓库');return;} if(confirm(`删除仓库「${whName}」？配件仓库将变为总仓`)){ warehouses=warehouses.filter(w=>w!==whName); models.forEach(m=>{ m.parts.forEach(p=>{ if(p.warehouse===whName) p.warehouse='总仓'; }); }); saveLocal(); showWarehouseManageModal(); renderList(); addHistory("仓库管理",`删除仓库「${whName}」`); } }); }); document.getElementById('addWarehouseBtn').onclick=()=>{ let newWh=prompt('请输入新仓库名称'); if(newWh && newWh.trim() && !warehouses.includes(newWh.trim())){ warehouses.push(newWh.trim()); saveLocal(); showWarehouseManageModal(); renderList(); addHistory("仓库管理",`添加仓库「${newWh.trim()}」`); } else if(newWh && warehouses.includes(newWh.trim())) alert('仓库已存在'); }; } document.getElementById('warehouseManageModal').classList.add('active'); }
+    function showInstruction() { const container = document.getElementById('instructionText'); container.innerHTML = `<p><strong>🔍 搜索框详细教程</strong><br>• 支持<strong class="instruction-highlight">型号名称、配件名称、颜色、位置</strong>模糊搜索。<br>• 多个关键词用<strong>空格</strong>分隔，例如输入 <code>后盖 白</code> 可找到所有白色后盖。<br>• 搜索时配件列表自动展开，搜索结果高亮匹配的配件。<br>• 清空搜索框即可恢复全部显示。</p><hr><p><strong>⚙️ 菜单每一项功能讲解</strong></p><div class="menu-func-list"><p>🎨 <strong>主题设置</strong>：更换5种主题色和5种UI圆角风格，实时保存。</p><p>📋 <strong>型号管理</strong>：查看所有手机型号，可快速删除整个型号及其配件，并支持新增机型。</p><p>🏚️ <strong>仓库管理</strong>：启用/关闭仓库功能，自定义仓库名称（至少保留一个）。</p><p>📸 <strong>保存快照</strong>：将当前库存生成带网格线的表格截图（PNG），支持多重导出降级，确保在App中也能成功。</p><p>👈 <strong>左滑出库</strong>：<span class="instruction-highlight">点击可开启/关闭滑动出入库功能</span>。开启后，在配件卡片上左右滑动可快速±1库存。</p><p>📜 <strong>操作历史</strong>：记录所有入库/出库、增删改操作，可清空或导出为CSV。</p><p>⚠️ <strong>库存预警</strong>：显示所有低于预警线的配件，预警线在编辑配件时设置。</p><p>📋 <strong>缺货清单</strong>：专门列出所有低于预警线的配件，自动计算建议补货量，支持导出Excel表格或图片（多重导出降级）。</p><p>📝 <strong>缺货登记本</strong>：全屏页面，用于临时登记缺货，支持自定义分类卡片。数量采用蓝色椭圆背景，点击即可编辑。支持折叠/展开、删除，数据自动保存，支持导出表格和图片（多重导出降级）。</p><p>📁 <strong>管理分类</strong>：全屏页面，可新增/删除分类卡片，方便组织缺件类型。</p><p>📂 <strong>导入Excel</strong>：按照表头（型号、配件、颜色、数量、成本、仓库、位置、预警）批量导入，覆盖当前数据。（需联网加载Excel库）</p><p>💾 <strong>导出Excel</strong>：将当前库存导出为Excel文件。（需联网）</p><p>📖 <strong>使用说明</strong>：本页面，再次查看详细教程。</p></div><p><strong>📱 滑动交互说明</strong><br>• 在配件卡片上<strong>向右滑动</strong>（→）快速入库+1，<strong>向左滑动</strong>（←）快速出库-1。<br>• 滑动距离超过卡片宽度<strong>一半</strong>时松手才会触发，避免误操作。<br>• 滑动时背景色从浅绿/浅红逐渐加深至深绿/深红，距离越远颜色越深，视觉反馈强烈。<br>• 操作成功/失败后屏幕中央会显示<strong>持续5秒</strong>的大提示，同时也会震动（若设备支持）。<br>• 如果库存不足，出库会失败并显示红色错误提示。</p><p><strong>✨ 其他提示</strong><br>• 点击型号标题可展开/收起配件列表。<br>• 每个配件下方有独立的入库、出库、编辑、删除按钮，可自定义数量。<br>• 数据自动保存在浏览器本地，刷新页面不丢失。<br>• 底部footer提示滑动方向，随时查看。</p>`; document.getElementById('instructionModal').classList.add('active'); }
+    function refreshShortageModal() { const shortageList = []; for (let model of models) { for (let part of model.parts) { if (part.minStock > 0 && part.qty <= part.minStock) { shortageList.push({ model: model.name, part: part.name, color: part.color || '—', qty: part.qty, minStock: part.minStock, suggest: Math.max(part.minStock * 2 - part.qty, 0) }); } } } const tbody = document.getElementById('shortageTableBody'); if (shortageList.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">✅ 当前没有缺货配件，库存健康</td></tr>'; return; } tbody.innerHTML = shortageList.map(item => `<tr><td>${escapeHtml(item.model)}</td><td>${escapeHtml(item.part)}</td><td>${escapeHtml(item.color)}</td><td style="color:#e11d48;">${item.qty}</td><td>${item.minStock}</td><td style="color:#2b7e3a;">${item.suggest}</td></tr>`).join(''); }
+    function exportShortageExcel() { if (typeof XLSX === 'undefined') { showToast("❌ Excel库未加载，请联网后导出"); return; } const shortageData = []; for (let model of models) { for (let part of model.parts) { if (part.minStock > 0 && part.qty <= part.minStock) { shortageData.push({ '型号': model.name, '配件名称': part.name, '颜色': part.color || '—', '当前库存': part.qty, '预警线': part.minStock, '建议补货量': Math.max(part.minStock * 2 - part.qty, 0) }); } } } if (shortageData.length === 0) { alert('当前没有缺货配件'); return; } const wsData = [['型号', '配件名称', '颜色', '当前库存', '预警线', '建议补货量']]; shortageData.forEach(item => wsData.push([item['型号'], item['配件名称'], item['颜色'], item['当前库存'], item['预警线'], item['建议补货量']])); const ws = XLSX.utils.aoa_to_sheet(wsData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '缺货进货清单'); XLSX.writeFile(wb, `缺货采购清单_${Date.now()}.xlsx`); addHistory("导出", "导出缺货进货清单"); showToast("缺货清单已导出"); }
+    function exportRegistryExcelFull() { if (typeof XLSX === 'undefined') { showToast("❌ Excel库未加载，请联网后导出"); return; } let data = [["分类", "机型", "配件", "数量"]]; missingRegistry.forEach(cat => { cat.items.forEach(it => { data.push([cat.category, it.device, it.part, `${it.qty || 1} 个`]); }); }); const ws = XLSX.utils.aoa_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "缺件登记本"); XLSX.writeFile(wb, `缺件登记本_${Date.now()}.xlsx`); showToast("导出Excel成功"); }
+    function renderFullRegistry() { const container = document.getElementById('registryCardsContainer'); if (!missingRegistry.length) missingRegistry = []; const sortedRegistry = missingRegistry.map(cat => ({ ...cat, items: [...cat.items].sort((a,b) => a.device.localeCompare(b.device, 'zh')) })); container.innerHTML = sortedRegistry.map((cat, idx) => `<div class="registry-card" data-cat-index="${idx}"><div class="registry-card-header" data-toggle-cat="${idx}"><span>📂 ${escapeHtml(cat.category)} (${cat.items.length})</span><div class="card-header-actions"><button class="quick-add-btn" data-quick-add="${idx}">+</button></div></div><div class="registry-item-list" data-list="${idx}" style="display: ${cat.collapsed ? 'none' : 'flex'}">${cat.items.map((item, itemIdx) => `<div class="registry-item"><span>📱 ${escapeHtml(item.device)} - ${escapeHtml(item.part)}</span><div class="item-actions"><div class="editable-qty" data-cat="${idx}" data-item="${itemIdx}"><span class="qty-num">${item.qty || 1} 个</span><span class="icon">✏️</span></div><button class="del-reg-item" data-cat="${idx}" data-item="${itemIdx}">✖️</button></div></div>`).join('')}</div></div>`).join(''); document.querySelectorAll('.registry-card-header[data-toggle-cat]').forEach(header => { header.addEventListener('click', (e) => { if(e.target.classList.contains('quick-add-btn')) return; const idx = header.getAttribute('data-toggle-cat'); const listDiv = document.querySelector(`.registry-item-list[data-list="${idx}"]`); if(listDiv) { const isVisible = listDiv.style.display !== 'none'; listDiv.style.display = isVisible ? 'none' : 'flex'; missingRegistry[idx].collapsed = !isVisible; saveLocal(); } }); }); document.querySelectorAll('.quick-add-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const catIdx = parseInt(btn.getAttribute('data-quick-add')); const category = missingRegistry[catIdx].category; const input = prompt(`请输入缺件信息（格式：机型 配件 数量）\n例如：mate40 后盖 1`, ""); if (!input) return; const parts = input.trim().split(/\s+/); if (parts.length < 2) { alert("请按格式输入：机型 配件 数量（数量可选，默认为1）"); return; } let device = parts[0]; let partName = parts[1]; let qty = parts[2] ? parseInt(parts[2]) : 1; if (isNaN(qty) || qty <= 0) qty = 1; const existing = missingRegistry[catIdx].items.find(it => it.device === device && it.part === partName); if (existing) { existing.qty = (existing.qty || 1) + qty; showToast(`已合并，现数量 ${existing.qty}`); } else { missingRegistry[catIdx].items.push({ device, part: partName, qty }); showToast(`已添加 ${device} - ${partName} x${qty}`); } missingRegistry[catIdx].items.sort((a,b) => a.device.localeCompare(b.device, 'zh')); saveLocal(); renderFullRegistry(); }); }); document.querySelectorAll('.editable-qty').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); let cat = parseInt(el.getAttribute('data-cat')); let itemIdx = parseInt(el.getAttribute('data-item')); const currentQty = missingRegistry[cat].items[itemIdx].qty || 1; let newQty = parseInt(prompt("请输入新数量", currentQty)); if (!isNaN(newQty) && newQty > 0) { missingRegistry[cat].items[itemIdx].qty = newQty; saveLocal(); renderFullRegistry(); showToast(`数量已更新为 ${newQty}`); } else if (newQty !== null) alert("数量必须大于0"); }); }); document.querySelectorAll('.del-reg-item').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('删除该缺件记录？')){ let cat = parseInt(btn.getAttribute('data-cat')); let item = parseInt(btn.getAttribute('data-item')); missingRegistry[cat].items.splice(item, 1); if (missingRegistry[cat].items.length === 0) missingRegistry.splice(cat, 1); saveLocal(); renderFullRegistry(); showToast("已删除"); } }); }); }
+    function openFullRegistry() { renderFullRegistry(); document.getElementById('fullscreenRegistry').classList.add('active'); document.getElementById('mainAppContainer').style.display = 'none'; }
+    function closeFullRegistry() { document.getElementById('fullscreenRegistry').classList.remove('active'); document.getElementById('mainAppContainer').style.display = 'flex'; }
+    function openFullscreenManageCategory() { renderFullscreenCategoryList(); document.getElementById('fullscreenManageCategory').classList.add('active'); document.getElementById('mainAppContainer').style.display = 'none'; }
+    function closeFullscreenManageCategory() { document.getElementById('fullscreenManageCategory').classList.remove('active'); document.getElementById('mainAppContainer').style.display = 'flex'; }
+    function renderFullscreenCategoryList() { const container = document.getElementById('fullscreenCategoryList'); container.innerHTML = missingRegistry.map((cat, idx) => `<div class="category-item"><span>📁 ${escapeHtml(cat.category)} (${cat.items.length})</span><button class="del-cat-btn" data-idx="${idx}">删除</button></div>`).join(''); container.querySelectorAll('.del-cat-btn').forEach(btn => { btn.addEventListener('click', () => { let idx = parseInt(btn.getAttribute('data-idx')); if(confirm(`删除分类「${missingRegistry[idx].category}」及其所有缺件？`)){ missingRegistry.splice(idx, 1); saveLocal(); renderFullscreenCategoryList(); renderFullRegistry(); showToast("分类已删除"); } }); }); }
+    function addNewCategoryFullscreen() { let name = document.getElementById('newCatNameInput').value.trim(); if (name && !missingRegistry.find(c => c.category === name)) { missingRegistry.push({ category: name, items: [], collapsed: false }); saveLocal(); renderFullscreenCategoryList(); renderFullRegistry(); document.getElementById('newCatNameInput').value = ''; showToast(`已添加分类「${name}」`); } else if (name) alert("分类已存在或名称无效"); }
+    function renderList() { const kw = document.getElementById('searchInput').value; const isSearching = kw.trim().length > 0; let searchResults = isSearching ? smartSearch(kw) : models.map(m => ({ model: m, matchedParts: m.parts })); if (searchResults.length === 0) { document.getElementById('modelList').innerHTML = '<div class="empty-msg">📭 没有找到配件</div>'; updateStats(); return; } let html = ''; for (let res of searchResults) { const model = res.model; const parts = res.matchedParts; const autoExpand = isSearching; const totalValue = getModelTotalValue(model); html += `<div class="model-card ${autoExpand ? 'expanded' : ''}" data-model-id="${model.id}"><div class="model-header" data-action="toggleModel" data-model="${model.id}"><div class="model-header-left"><span>📱 ${escapeHtml(model.name)}</span><span class="model-stats">${parts.length}个配件</span></div><div class="model-total ${showModelTotal ? 'show' : ''}">💰 ${totalValue.toFixed(2)}</div></div><div class="parts-container">`; for (let part of parts) { const isWarning = (part.minStock > 0 && part.qty <= part.minStock); html += `<div class="part-card ${isWarning ? 'warning' : ''}" data-part-id="${part.id}" data-model-id="${model.id}"><div class="part-title"><span class="part-name">${escapeHtml(part.name)}</span>${part.color ? `<span class="part-color">🎨 ${escapeHtml(part.color)}</span>` : ''}<div class="part-qty-price"><span class="part-qty">📦 ${part.qty}</span><span class="part-price">💰 ${part.price.toFixed(2)}</span></div></div><div class="part-location">🏚️ ${enableWarehouse ? escapeHtml(part.warehouse) : ''} 📍 ${escapeHtml(part.location || '')}</div><div class="part-actions"><button class="btn-in" data-action="in" data-model="${model.id}" data-part-id="${part.id}">📥 入库</button><button class="btn-out" data-action="out" data-model="${model.id}" data-part-id="${part.id}">📤 出库</button><button class="btn-edit" data-action="editPart" data-model="${model.id}" data-part-id="${part.id}">✏️ 编辑</button><button class="btn-del" data-action="delPart" data-model="${model.id}" data-part-id="${part.id}">🗑️ 删除</button></div></div>`; } html += `<div class="add-part-btn" data-action="addPart" data-model="${model.id}">+ 添加配件</div></div></div>`; } document.getElementById('modelList').innerHTML = html; updateStats(); initSwipe(); }
+    function toggleModelExpand(modelId) { const card = document.querySelector(`.model-card[data-model-id='${modelId}']`); if (card) card.classList.toggle('expanded'); }
+    function openModelModal(editId=null) { currentModelId = editId; document.getElementById('modelModalTitle').innerText = editId ? '编辑型号' : '新增型号'; document.getElementById('modelName').value = editId ? models.find(m=>m.id===editId).name : ''; document.getElementById('modelModal').classList.add('active'); }
+    function saveModel() { let name = document.getElementById('modelName').value.trim(); if(!name) return alert('请输入型号'); if(currentModelId===null){ const newId = nextModelId++; models.push({id:newId,name,parts:[]}); } else { let m=models.find(m=>m.id===currentModelId); if(m) m.name=name; } sortModelsByName(); saveLocal(); renderList(); closeModelModal(); }
+    function closeModelModal() { document.getElementById('modelModal').classList.remove('active'); currentModelId=null; }
+    function openPartModal(modelId, partId=null){ currentModelId=modelId; currentPartId=partId; const model=models.find(m=>m.id===modelId); if(!model)return; const isEdit=partId!==null; document.getElementById('partModalTitle').innerText=isEdit?'编辑配件':'新增配件'; if(isEdit){ const part=model.parts.find(p=>p.id===partId); if(part){ document.getElementById('partName').value=part.name; document.getElementById('partColor').value=part.color||''; document.getElementById('partQty').value=part.qty; document.getElementById('partPrice').value=part.price; document.getElementById('partWarehouse').value=part.warehouse||'总仓'; document.getElementById('partLocation').value=part.location||''; document.getElementById('partMinStock').value=part.minStock||0; } } else { document.getElementById('partName').value=''; document.getElementById('partColor').value=''; document.getElementById('partQty').value='0'; document.getElementById('partPrice').value='0'; document.getElementById('partWarehouse').value='总仓'; document.getElementById('partLocation').value=''; document.getElementById('partMinStock').value='0'; } document.getElementById('warehouseField').style.display=enableWarehouse?'block':'none'; const whSel=document.getElementById('partWarehouse'); whSel.innerHTML=warehouses.map(w=>`<option value="${w}">${w}</option>`).join(''); document.getElementById('partModal').classList.add('active'); }
+    function savePart(){ const model=models.find(m=>m.id===currentModelId); if(!model)return; const name=document.getElementById('partName').value.trim(); if(!name)return alert('配件名不能为空'); const color=document.getElementById('partColor').value.trim(); let qty=parseInt(document.getElementById('partQty').value)||0; let price=parseFloat(document.getElementById('partPrice').value)||0; let warehouse=enableWarehouse?document.getElementById('partWarehouse').value:'总仓'; let location=document.getElementById('partLocation').value.trim(); let minStock=parseInt(document.getElementById('partMinStock').value)||0; if(currentPartId===null){ const newPart={id:nextPartId++,name,color,qty,price,warehouse,location,minStock}; model.parts.push(newPart); addHistory("新增配件",`${model.name} - ${name} ${color?'('+color+')':''}`); } else { const part=model.parts.find(p=>p.id===currentPartId); if(part){ const oldStr=`${part.name} ${part.color?'('+part.color+')':''}`; part.name=name; part.color=color; part.qty=qty; part.price=price; part.warehouse=warehouse; part.location=location; part.minStock=minStock; addHistory("编辑配件",`${model.name} - ${oldStr} → ${name} ${color?'('+color+')':''}`); } } sortModelsByName(); saveLocal(); renderList(); closePartModal(); }
+    function deletePart(modelId,partId){ const model=models.find(m=>m.id===modelId); if(model){ const part=model.parts.find(p=>p.id===partId); if(part){ model.parts=model.parts.filter(p=>p.id!==partId); addHistory("删除配件",`${model.name} - ${part.name} ${part.color?'('+part.color+')':''}`); saveLocal(); renderList(); } } }
+    function closePartModal(){ document.getElementById('partModal').classList.remove('active'); currentModelId=null; currentPartId=null; }
+    function openQtyModal(modelId,partId,type){ currentQtyModelId=modelId; currentQtyPartId=partId; currentQtyType=type; document.getElementById('qtyModalTitle').innerText=type==='in'?'📥 入库':'📤 出库'; document.getElementById('qtyInput').value='1'; document.getElementById('qtyModal').classList.add('active'); }
+    function closeQtyModal(){ document.getElementById('qtyModal').classList.remove('active'); currentQtyModelId=null; }
+    function executeQtyChange(){ const model=models.find(m=>m.id===currentQtyModelId); if(!model){closeQtyModal();return;} const part=model.parts.find(p=>p.id===currentQtyPartId); if(!part){closeQtyModal();return;} let delta=parseInt(document.getElementById('qtyInput').value); if(isNaN(delta)||delta<=0){alert('数量必须大于0');return;} const oldQty=part.qty; if(currentQtyType==='in') part.qty+=delta; else { if(part.qty-delta<0){alert('库存不足');return;} part.qty-=delta; } addHistory(currentQtyType==='in'?'入库':'出库',`${model.name} - ${part.name} ${part.color?'('+part.color+')':''} ${delta}个 (${oldQty}→${part.qty})`); saveLocal(); renderList(); closeQtyModal(); showSlideMessage(`${currentQtyType==='in'?'入库成功 +'+delta:'出库成功 -'+delta} (现${part.qty})`,false); }
+    function showHistory() { const container = document.getElementById('historyList'); if(historyLog.length===0) container.innerHTML='<div style="text-align:center; padding:20px;">暂无记录</div>'; else container.innerHTML=historyLog.map(h=>`<div class="history-item">[${h.time}] ${h.action}: ${h.detail}</div>`).join(''); document.getElementById('historyModal').classList.add('active'); }
+    function clearHistory(){ if(confirm('清空历史记录？')){ historyLog=[]; addHistory("系统","清空历史记录"); saveLocal(); if(document.getElementById('historyModal').classList.contains('active')) showHistory(); } }
+    function exportHistory() { let csv=[['时间','操作','详情']]; historyLog.forEach(h=>csv.push([h.time,h.action,h.detail])); const content=csv.map(row=>row.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n'); downloadFile(content,`历史记录_${Date.now()}.csv`,'text/csv'); addHistory("导出","导出历史记录"); }
+    function showAlerts(){ const alerts=[]; for(let model of models){ for(let part of model.parts){ if(part.minStock>0&&part.qty<=part.minStock){ alerts.push(`${model.name} - ${part.name}${part.color?'('+part.color+')':''}：库存 ${part.qty} ≤ 预警线 ${part.minStock}`); } } } const container=document.getElementById('alertList'); container.innerHTML=alerts.length?alerts.map(a=>`<div class="alert-item">⚠️ ${escapeHtml(a)}</div>`).join(''):'<div style="text-align:center; padding:20px;">✅ 暂无预警</div>'; document.getElementById('alertModal').classList.add('active'); }
+    function initMenu(){ 
+        const menuBtn=document.getElementById('menuBtn'),dropdown=document.getElementById('menuDropdown'); 
+        menuBtn.addEventListener('click',(e)=>{ e.stopPropagation(); dropdown.classList.toggle('show'); }); 
+        document.addEventListener('click',()=>{ dropdown.classList.remove('show'); }); 
+        document.getElementById('themeMenuItem').onclick=()=>{ showThemeModal(); dropdown.classList.remove('show'); }; 
+        document.getElementById('modelManageMenuItem').onclick=()=>{ showModelManageModal(); dropdown.classList.remove('show'); }; 
+        document.getElementById('warehouseManageMenuItem').onclick=()=>{ showWarehouseManageModal(); dropdown.classList.remove('show'); }; 
+        document.getElementById('snapshotMenuItem').onclick=()=>{ takeSnapshot(); dropdown.classList.remove('show'); }; 
+        document.getElementById('swipeToggleMenuItem').onclick=()=>{ swipeEnabled=!swipeEnabled; saveLocal(); initSwipe(); showToast(swipeEnabled?'✅ 已开启滑动出入库':'❌ 已禁用滑动出入库'); dropdown.classList.remove('show'); }; 
+        document.getElementById('historyMenuItem').onclick=()=>{ showHistory(); dropdown.classList.remove('show'); }; 
+        document.getElementById('shortageMenuItem').onclick=()=>{ refreshShortageModal(); document.getElementById('shortageModal').classList.add('active'); dropdown.classList.remove('show'); }; 
+        document.getElementById('importExcelBtn').onclick=()=>{ const input=document.createElement('input'); input.type='file'; input.accept='.xlsx, .xls'; input.onchange=(e)=>{ if(e.target.files.length) importExcel(e.target.files[0]); input.remove(); }; input.click(); dropdown.classList.remove('show'); }; 
+        document.getElementById('exportExcelBtn').onclick=()=>{ exportToExcel(); dropdown.classList.remove('show'); }; 
+        document.getElementById('instructionMenuItem').onclick=()=>{ showInstruction(); dropdown.classList.remove('show'); }; 
+        document.getElementById('exportShortageExcelBtn').onclick=exportShortageExcel;
+        document.getElementById('exportShortageImageBtn').onclick=exportShortageImage;
+        document.getElementById('closeShortageBtn').onclick=()=>document.getElementById('shortageModal').classList.remove('active');
+        document.getElementById('openRegistryBtn').onclick=openFullRegistry;
+        document.getElementById('closeRegistryFull').onclick=closeFullRegistry;
+        document.getElementById('manageCategoryFullBtn').onclick=openFullscreenManageCategory;
+        document.getElementById('exportRegistryExcelFull').onclick=exportRegistryExcelFull;
+        document.getElementById('exportRegistryImageFull').onclick=exportRegistryImageFull;
+        document.getElementById('closeManageFull').onclick=closeFullscreenManageCategory;
+        document.getElementById('addCatFullBtn').onclick=addNewCategoryFullscreen;
+    }
+    function init(){ loadPreferences(); loadLocal(); renderList(); initMenu(); document.getElementById('confirmQtyBtn').onclick=executeQtyChange; document.getElementById('confirmModelBtn').onclick=saveModel; document.getElementById('cancelModelBtn').onclick=closeModelModal; document.getElementById('confirmPartBtn').onclick=savePart; document.getElementById('cancelPartBtn').onclick=closePartModal; document.getElementById('cancelQtyBtn').onclick=closeQtyModal; document.getElementById('closeHistoryBtn').onclick=clearHistory; document.getElementById('exportHistoryBtn').onclick=exportHistory; document.getElementById('closeAlertBtn').onclick=()=>document.getElementById('alertModal').classList.remove('active'); document.getElementById('closeThemeBtn').onclick=()=>document.getElementById('themeModal').classList.remove('active'); document.getElementById('closeModelManageBtn').onclick=closeModelManageModal; document.getElementById('closeWarehouseManageBtn').onclick=()=>document.getElementById('warehouseManageModal').classList.remove('active'); document.getElementById('closeInstructionBtn').onclick=()=>document.getElementById('instructionModal').classList.remove('active'); document.getElementById('searchInput').oninput=renderList; document.querySelectorAll('.modal-mask').forEach(m=>{ m.onclick=(e)=>{ if(e.target===m) m.classList.remove('active'); }; }); document.getElementById('modelList').addEventListener('click', (e) => { const btn = e.target.closest('[data-action]'); if (!btn) return; const act = btn.getAttribute('data-action'); const modelId = parseInt(btn.getAttribute('data-model')); const partId = btn.getAttribute('data-part-id') ? parseInt(btn.getAttribute('data-part-id')) : null; if (act === 'toggleModel') { toggleModelExpand(modelId); return; } if (act === 'addPart') { openPartModal(modelId, null); return; } if (act === 'in' || act === 'out') { openQtyModal(modelId, partId, act); return; } if (act === 'editPart') { openPartModal(modelId, partId); return; } if (act === 'delPart') { if (confirm(`删除配件？`)) deletePart(modelId, partId); } }); }
+    init();
+</script>
+</body>
+</html>
